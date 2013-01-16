@@ -2,7 +2,7 @@
 
 A simple PHP client for the <a href="http://www.gracenote.com">Gracenote</a> Music API, which can retrieve Artist, Album and Track metadata with the most common options.
 
-This is basically the PHP equivilent to the <a href="https://github.com/cweichen/pygn.">pygn project</a>.
+This is basically the PHP equivilent to the <a href="https://github.com/cweichen/pygn">pygn project</a>.
 
 php-gracenote allows you to look up artists, albums, and tracks in the Gracenote database, and returns a number of metadata fields, including:
 
