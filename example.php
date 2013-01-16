@@ -16,8 +16,12 @@ $userID = $api->register();
 echo "UserID = ".$userID."\n";
 
 // Once you have the userID, you can search for tracks, artists or albums easily.
-echo "\n\nSearch Track:\n";
+echo "\n\nSearch Tracks:\n";
 $results = $api->searchTrack("Moby", "Play", "Porcelin");
+var_dump($results);
+
+echo "\n\nSearch Best Track:\n";
+$results = $api->searchTrack("Moby", "Play", "Porcelin", Gracenote\WebAPI\GracenoteWebAPI::BEST_MATCH_ONLY);
 var_dump($results);
 
 echo "\n\nSearch Artist:\n";

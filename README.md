@@ -38,15 +38,15 @@ The results are a PHP array containing the metadata information,
 
     array(1) {
       [0]=>
-      array(18) {
+      array(13) {
         ["album_gnid"]=>
-        string(40) "5026977-5C6DC28B1E1ADB1D028FF248DDFAEB55"
+        string(41) "97474325-8C600076B380712C6D1C5DC5DC5674F1"
         ["album_artist_name"]=>
         string(4) "Moby"
         ["album_title"]=>
         string(4) "Play"
         ["album_year"]=>
-        string(4) "1999"
+        string(0) ""
         ["genre"]=>
         array(3) {
           [0]=>
@@ -72,13 +72,13 @@ The results are a PHP array containing the metadata information,
           }
         }
         ["album_art_url"]=>
-        string(199) "https://web.content.cddbp.net/cgi-bin/content-thin?id=09A52178DC85EC3C&client=8311808&class=cover&origin=front&size=medium&type=image/jpeg&tag=02ZN.Tw8wfNAUu6it6mLiLDSViRnlvaEFZWbjCuOwENtGktsnA1oauYQ"
+        string(0) ""
         ["artist_image_url"]=>
-        string(186) "https://web.content.cddbp.net/cgi-bin/content-thin?id=C018FAD072939E99&client=8311808&class=image&size=medium&type=image/jpeg&tag=02Zid-KwnjTQF5IcTTtEz0ffcaiw59OA7fr-HEt4u3gyKwVx7s5HvPBg"
+        string(186) "https://web.content.cddbp.net/cgi-bin/content-thin?id=C018FAD072939E99&client=2918400&class=image&size=medium&type=image/jpeg&tag=02HLKqh2FXA--HRlBx5tliIUdZ6GyB50tVS3r4Hho6fK7K8wkaXfsuVg"
         ["artist_bio_url"]=>
-        string(178) "https://web.content.cddbp.net/cgi-bin/content-thin?id=1274BA55D9C33B8E&client=8311808&class=biography&type=text/plain&tag=02S7b-pi.H9yei-m1W6UQAoL--ObBoOOB-nNa4Pa6MpXLniCk9JnB18A"
+        string(178) "https://web.content.cddbp.net/cgi-bin/content-thin?id=1274BA55D9C33B8E&client=2918400&class=biography&type=text/plain&tag=02FoY40RFKxFifPpFB4UzwdrN0fmRS-LEKV2SZtNDpbjB3-LB6GpQiPw"
         ["review_url"]=>
-        string(175) "https://web.content.cddbp.net/cgi-bin/content-thin?id=2BE8903E6FDA54AF&client=8311808&class=review&type=text/plain&tag=02FHvc-3RfDd7rxAHCydaUeuXTdOi64CvYbET4RChNV4XMFLWfLt4t0A"
+        string(0) ""
         ["artist_era"]=>
         array(1) {
           [0]=>
@@ -137,53 +137,24 @@ The results are a PHP array containing the metadata information,
             string(13) "New York City"
           }
         }
-        ["track_number"]=>
-        int(1)
-        ["track_gnid"]=>
-        string(40) "5026978-59020A61693879EB2A8BBD376B836091"
-        ["track_title"]=>
-        string(5) "Honey"
-        ["track_artist_name"]=>
-        string(0) ""
-        ["mood"]=>
-        array(2) {
+        ["tracks"]=>
+        array(1) {
           [0]=>
-          array(2) {
-            ["id"]=>
-            int(42961)
-            ["text"]=>
-            string(10) "Energizing"
-          }
-          [1]=>
-          array(2) {
-            ["id"]=>
-            int(43050)
-            ["text"]=>
-            string(15) "Arousing Groove"
-          }
-        }
-        ["tempo"]=>
-        array(3) {
-          [0]=>
-          array(2) {
-            ["id"]=>
-            int(34283)
-            ["text"]=>
-            string(12) "Medium Tempo"
-          }
-          [1]=>
-          array(2) {
-            ["id"]=>
-            int(34291)
-            ["text"]=>
-            string(11) "Medium Fast"
-          }
-          [2]=>
-          array(2) {
-            ["id"]=>
-            int(34320)
-            ["text"]=>
-            string(4) "100s"
+          array(6) {
+            ["track_number"]=>
+            int(1)
+            ["track_gnid"]=>
+            string(41) "97474326-B1F15B5A5852DF660C94268D737B6C36"
+            ["track_title"]=>
+            string(8) "Porcelin"
+            ["track_artist_name"]=>
+            string(4) "Moby"
+            ["mood"]=>
+            array(0) {
+            }
+            ["tempo"]=>
+            array(0) {
+            }
           }
         }
       }
@@ -200,10 +171,8 @@ There are also convenience functions to look up just an Artist or just an Album.
 
 	$results = $api->searchArtist("CSS");
 
-will return the same result array with metadata for the top album by CSS (which happens to be "Cansei De Ser Sexy" at time of writing), with track-specific fields being blank
-
-Calling:
+Will return the same result array with metadata for the top album by CSS (which happens to be "Cansei De Ser Sexy" at time of writing), and the track info for each album.
 
 	$results = $api->searchAlbum("Jaga Jazzist", "What We Must");
 
-will return a array with metadata for Jaga Jazzist's "What We Must" album, again with track-specific fields empty.
+Will return a array with metadata for Jaga Jazzist's "What We Must" album, and metadata for each track on the album.

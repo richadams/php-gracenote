@@ -27,7 +27,7 @@ class GNError
 
     const HTTP_REQUEST_ERROR       = 2000; // An uncaught exception was raised while doing a cURL request.
     const HTTP_REQUEST_TIMEOUT     = 2001; // The external request timed out.
-    const HTTP_RESPONSE_400_CODE   = 2002; // There was a HTTP400 error code returned.
+    const HTTP_RESPONSE_ERROR_CODE = 2002; // There was a HTTP400 error code returned.
 
     const INVALID_INPUT_SPECIFIED  = 3000; // Some input the user gave wasn't valid.
 
@@ -45,7 +45,7 @@ class GNError
         // HTTP Errors
         ,2000 => "There was an error while performing an external request."
         ,2001 => "Request to a Gracenote WebAPI timed out."
-        ,2002 => "WebAPI response had a HTTP400 error code."
+        ,2002 => "WebAPI response had a HTTP error code."
 
         // Input Errors
         ,3000 => "Invalid input."

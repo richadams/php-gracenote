@@ -106,7 +106,7 @@ class HTTP
         {
             switch ($curl_error)
             {
-                case CURLE_HTTP_NOT_FOUND:      throw new GNException(GNError::HTTP_RESPONSE_400_CODE, $this->getResponseCode());
+                case CURLE_HTTP_NOT_FOUND:      throw new GNException(GNError::HTTP_RESPONSE_ERROR_CODE, $this->getResponseCode());
                 case CURLE_OPERATION_TIMEOUTED: throw new GNException(GNError::HTTP_REQUEST_TIMEOUT);
             }
 

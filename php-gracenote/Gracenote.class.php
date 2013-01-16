@@ -12,6 +12,10 @@ include(dirname( __FILE__ )."/HTTP.class.php");
 
 class GracenoteWebAPI
 {
+    // Constants
+    const BEST_MATCH_ONLY = 0; // Will put API into "SINGLE_BEST" mode.
+    const ALL_RESULTS     = 1;
+
     // Members
     private $_clientID  = null;
     private $_clientTag = null;
@@ -52,7 +56,7 @@ class GracenoteWebAPI
                        </QUERY>
                     </QUERIES>";
         $http = new HTTP($this->_apiURL);
-        $response = $request->post($request);
+        $response = $http->post($request);
         $response = $this->_checkResponse($response);
 
         // Cache it locally then return to user.
@@ -61,26 +65,26 @@ class GracenoteWebAPI
     }
 
     // Queries the Gracenote service for a track
-    public function searchTrack($artistName, $albumTitle, $trackTitle)
+    public function searchTrack($artistName, $albumTitle, $trackTitle, $matchMode = self::ALL_RESULTS)
     {
         // Sanity checks
         if ($this->_userID === null) { $this->register(); }
 
-        $body = $this->_constructQueryBody($artistName, $albumTitle, $trackTitle);
+        $body = $this->_constructQueryBody($artistName, $albumTitle, $trackTitle, "", "ALBUM_SEARCH", $matchMode);
         $data = $this->_constructQueryRequest($body);
         return $this->_execute($data);
     }
 
     // Queries the Gracenote service for an artist.
-    public function searchArtist($artistName)
+    public function searchArtist($artistName, $matchMode = self::ALL_RESULTS)
     {
-        return $this->searchTrack($artistName, "", "");
+        return $this->searchTrack($artistName, "", "", $matchMode);
     }
 
     // Queries the Gracenote service for an album.
-    public function searchAlbum($artistName, $albumTitle)
+    public function searchAlbum($artistName, $albumTitle, $matchMode = self::ALL_RESULTS)
     {
-        return $this->searchTrack($artistName, $albumTitle, "");
+        return $this->searchTrack($artistName, $albumTitle, "", $matchMode);
     }
 
     // This looks up an album directly using it's Gracenote identifier. Will return all the
@@ -93,6 +97,34 @@ class GracenoteWebAPI
         $body = $this->_constructQueryBody("", "", "", $gn_id, "ALBUM_FETCH");
         $data = $this->_constructQueryRequest($body, "ALBUM_FETCH");
         return $this->_execute($data);
+    }
+
+    // This retrieves ONLY the OET data from a fetch, and nothing else. Will return an array of that data.
+    public function fetchOETData($gn_id)
+    {
+        // Sanity checks
+        if ($this->_userID === null) { $this->register(); }
+
+        $body = "<GN_ID>".$gn_id."</GN_ID>
+                 <OPTION>
+                     <PARAMETER>SELECT_EXTENDED</PARAMETER>
+                     <VALUE>ARTIST_OET</VALUE>
+                 </OPTION>
+                 <OPTION>
+                     <PARAMETER>SELECT_DETAIL</PARAMETER>
+                     <VALUE>ARTIST_ORIGIN:4LEVEL,ARTIST_ERA:2LEVEL,ARTIST_TYPE:2LEVEL</VALUE>
+                 </OPTION>";
+
+        $data = $this->_constructQueryRequest($body, "ALBUM_FETCH");
+        $request = new HTTP($this->_apiURL);
+        $response = $request->post($data);
+        $xml = $this->_checkResponse($response);
+
+        $output = array();
+        $output["artist_origin"] = ($xml->RESPONSE->ALBUM->ARTIST_ORIGIN) ? $this->_getOETElem($xml->RESPONSE->ALBUM->ARTIST_ORIGIN) : "";
+        $output["artist_era"]    = ($xml->RESPONSE->ALBUM->ARTIST_ERA)    ? $this->_getOETElem($xml->RESPONSE->ALBUM->ARTIST_ERA)    : "";
+        $output["artist_type"]   = ($xml->RESPONSE->ALBUM->ARTIST_TYPE)    ? $this->_getOETElem($xml->RESPONSE->ALBUM->ARTIST_TYPE)  : "";
+        return $output;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +153,7 @@ class GracenoteWebAPI
     }
 
     // Constructs the main request body, including some default options for metadata, etc.
-    protected function _constructQueryBody($artist, $album = "", $track = "", $gn_id = "", $command = "ALBUM_SEARCH")
+    protected function _constructQueryBody($artist, $album = "", $track = "", $gn_id = "", $command = "ALBUM_SEARCH", $matchMode = self::ALL_RESULTS)
     {
         $body = "";
 
@@ -129,36 +161,36 @@ class GracenoteWebAPI
         if ($command == "ALBUM_FETCH")
         {
             $body .= "<GN_ID>".$gn_id."</GN_ID>";
-
-            // Include extended data.
-            $body .= "<OPTION>
-                          <PARAMETER>SELECT_EXTENDED</PARAMETER>
-                          <VALUE>COVER,REVIEW,ARTIST_BIOGRAPHY,ARTIST_IMAGE,ARTIST_OET,MOOD,TEMPO</VALUE>
-                      </OPTION>";
-
-            // Include more detailed responses.
-            $body .= "<OPTION>
-                          <PARAMETER>SELECT_DETAIL</PARAMETER>
-                          <VALUE>GENRE:3LEVEL,MOOD:2LEVEL,TEMPO:3LEVEL,ARTIST_ORIGIN:4LEVEL,ARTIST_ERA:2LEVEL,ARTIST_TYPE:2LEVEL</VALUE>
-                      </OPTION>";
-
-            // Only want the thumbnail cover art for now (LARGE,XLARGE,SMALL,MEDIUM,THUMBNAIL)
-            $body .= "<OPTION>
-                          <PARAMETER>COVER_SIZE</PARAMETER>
-                          <VALUE>MEDIUM</VALUE>
-                      </OPTION>";
         }
         // Otherwise, just do a search.
         else
         {
-            // Only want the single best match.
-            $body .= "<MODE>SINGLE_BEST</MODE>";
+            // Only get the single best match if that's what the user wants.
+            if ($matchMode == self::BEST_MATCH_ONLY) { $body .= "<MODE>SINGLE_BEST</MODE>"; }
 
             // If a search scenario, then need the text input
             if ($artist != "") { $body .= "<TEXT TYPE=\"ARTIST\">".$artist."</TEXT>"; }
             if ($track != "")  { $body .= "<TEXT TYPE=\"TRACK_TITLE\">".$track."</TEXT>"; }
             if ($album != "")  { $body .= "<TEXT TYPE=\"ALBUM_TITLE\">".$album."</TEXT>"; }
         }
+
+        // Include extended data.
+        $body .= "<OPTION>
+                      <PARAMETER>SELECT_EXTENDED</PARAMETER>
+                      <VALUE>COVER,REVIEW,ARTIST_BIOGRAPHY,ARTIST_IMAGE,ARTIST_OET,MOOD,TEMPO</VALUE>
+                  </OPTION>";
+
+        // Include more detailed responses.
+        $body .= "<OPTION>
+                      <PARAMETER>SELECT_DETAIL</PARAMETER>
+                      <VALUE>GENRE:3LEVEL,MOOD:2LEVEL,TEMPO:3LEVEL,ARTIST_ORIGIN:4LEVEL,ARTIST_ERA:2LEVEL,ARTIST_TYPE:2LEVEL</VALUE>
+                  </OPTION>";
+
+        // Only want the thumbnail cover art for now (LARGE,XLARGE,SMALL,MEDIUM,THUMBNAIL)
+        $body .= "<OPTION>
+                      <PARAMETER>COVER_SIZE</PARAMETER>
+                      <VALUE>MEDIUM</VALUE>
+                  </OPTION>";
 
         return $body;
     }
@@ -218,14 +250,6 @@ class GracenoteWebAPI
         {
             $obj = array();
 
-            // If there's no GOET data, do a fetch to get the full information instead.
-            if (!$a->ARTIST_ORIGIN)
-            {
-                $obj = $this->fetchAlbum((string)($a->GN_ID));
-                $output[] = $obj;
-                continue;
-            }
-
             // Album metadata
             $obj["album_gnid"]        = (string)($a->GN_ID);
             $obj["album_artist_name"] = (string)($a->ARTIST);
@@ -239,27 +263,42 @@ class GracenoteWebAPI
             $obj["artist_bio_url"]    = (string)($this->_getAttribElem($a->URL, "TYPE", "ARTIST_BIOGRAPHY"));
             $obj["review_url"]        = (string)($this->_getAttribElem($a->URL, "TYPE", "REVIEW"));
 
-            // Artist OET metadata
-            $obj["artist_era"]        = $this->_getOETElem($a->ARTIST_ERA);
-            $obj["artist_type"]       = $this->_getOETElem($a->ARTIST_TYPE);
-            $obj["artist_origin"]     = $this->_getOETElem($a->ARTIST_ORIGIN);
+            // If we have artist OET info, use it.
+            if ($a->ARTIST_ORIGIN)
+            {
+                $obj["artist_era"]    = $this->_getOETElem($a->ARTIST_ERA);
+                $obj["artist_type"]   = $this->_getOETElem($a->ARTIST_TYPE);
+                $obj["artist_origin"] = $this->_getOETElem($a->ARTIST_ORIGIN);
+            }
+            // If not available, do a fetch to try and get it instead.
+            else
+            {
+                $obj = array_merge($obj, $this->fetchOETData((string)($a->GN_ID)));
+            }
 
             // Parse track metadata if there is any.
-            if (isset($a->TRACK))
+            foreach($a->TRACK as $t)
             {
-                $obj["track_number"]      = (int)($a->TRACK->TRACK_NUM);
-                $obj["track_gnid"]        = (string)($a->TRACK->GN_ID);
-                $obj["track_title"]       = (string)($a->TRACK->TITLE);
-                $obj["track_artist_name"] = (string)($a->TRACK->ARTIST);
+                $track = array();
 
-                $obj["mood"]              = $this->_getOETElem($a->TRACK->MOOD);
-                $obj["tempo"]             = $this->_getOETElem($a->TRACK->TEMPO);
+                $track["track_number"]      = (int)($t->TRACK_NUM);
+                $track["track_gnid"]        = (string)($t->GN_ID);
+                $track["track_title"]       = (string)($t->TITLE);
+                $track["track_artist_name"] = (string)($t->ARTIST);
+
+                // If no specific track artist, use the album one.
+                if (!$t->ARTIST) { $track["track_artist_name"] = $obj["album_artist_name"]; }
+
+                $track["mood"]              = $this->_getOETElem($t->MOOD);
+                $track["tempo"]             = $this->_getOETElem($t->TEMPO);
 
                 // If track level GOET data exists, overwrite metadata from album.
-                if (isset($a->TRACK->GENRE))         { $obj["genre"] = $this->_getOETElem($a->TRACK->GENRE); }
-                if (isset($a->TRACK->ARTIST_ERA))    { $obj["artist_era"] = $this->_getOETElem($a->TRACK->ARTIST_ERA); }
-                if (isset($a->TRACK->ARTIST_TYPE))   { $obj["artist_type"] = $this->_getOETElem($a->TRACK->ARTIST_TYPE); }
-                if (isset($a->TRACK->ARTIST_ORIGIN)) { $obj["artist_origin"] = $this->_getOETElem($a->TRACK->ARTIST_ORIGIN); }
+                if (isset($t->GENRE))         { $obj["genre"]         = $this->_getOETElem($t->GENRE); }
+                if (isset($t->ARTIST_ERA))    { $obj["artist_era"]    = $this->_getOETElem($t->ARTIST_ERA); }
+                if (isset($t->ARTIST_TYPE))   { $obj["artist_type"]   = $this->_getOETElem($t->ARTIST_TYPE); }
+                if (isset($t->ARTIST_ORIGIN)) { $obj["artist_origin"] = $this->_getOETElem($t->ARTIST_ORIGIN); }
+
+                $obj["tracks"][] = $track;
             }
 
             $output[] = $obj;
