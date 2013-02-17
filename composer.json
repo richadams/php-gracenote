@@ -1,6 +1,6 @@
 {
     "name": "gracenote/gracenote-tha",
-    "description": "A PHP library for reporting events to the Keen IO API",
+    "description": "A PHP library for abstracting the Gracenote API",
     "type": "library",
     "license": "MIT",
     "keywords": [
