@@ -1,4 +1,4 @@
-Gracenote PHP Library
+Gracenote API PHP Library
 =====================
 This is a library to abstract the Gracenote API 
 
