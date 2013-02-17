@@ -15,7 +15,9 @@ use Zend\I18n\Validator\Alnum as Alnum;
 final class Gracenote {
 
     static private $clientId;
-    static private $clientTag;
+    static private $userId;
+    static private $language = 'eng';
+    static private $country = 'usa';
 
     static public function getClientId()
     {
@@ -27,9 +29,40 @@ final class Gracenote {
         self::$clientId = $value;
     }
 
-    static public function configure($clientId)
+    static public function getUserId()
+    {
+        return self::$userId;
+    }
+
+    static public function setUserId($value)
+    {
+        self::$userId = $value;
+    }
+
+    static public function getLanguage()
+    {
+        return self::$language;
+    }
+
+    static public function setLanguage($value)
+    {
+        self::$language = $value;
+    }
+
+    static public function getCountry()
+    {
+        return self::$country;
+    }
+
+    static public function setCountry($value)
+    {
+        self::$country = $value;
+    }
+
+    static public function configure($clientId, $userId = '')
     {
         self::setClientId($clientId);
+        self::setUserID($userId);
     }
 
     static public function getApiUrl()
@@ -39,6 +72,10 @@ final class Gracenote {
 
     static public function register()
     {
+        // Validate configuration
+        if (!self::getClientId())
+            throw new \Exception('Gracenote has not been configured');
+
         $http = new Client();
 
         $xml = new \SimpleXmlElement('<QUERIES></QUERIES>');
@@ -62,32 +99,57 @@ final class Gracenote {
         }
     }
 
-    static public function addEvent($collectionName, $parameters)
+    static public function query($command, $options)
     {
         // Validate configuration
-        if (!self::getClientId() or !self::getClientTag())
-            throw new \Exception('Keen IO has not been configured');
-
-        // Validate collection name
-        $validator = new Alnum();
-        if (!$validator->isValid($collectionName))
-            throw new \Exception("Collection name '$collectionName' contains invalid characters or spaces.");
+        if (!self::getClientId() or !self::getUserId())
+            throw new \Exception('Gracenote has not been configured');
 
         $http = new Client();
 
-        $http->setOptions(array('sslverifypeer' => false));
-        $headers = new Headers();
-        $headers->addHeaderLine('Authorization', self::getApiKey());
-        $headers->addHeaderLine('Content-Type', 'application/json');
-        $http->setHeaders($headers);
+        $xml = new \SimpleXmlElement('<QUERIES></QUERIES>');
+        $xml->addChild('LANG', self::getLanguage());
+        $xml->addChild('COUNTRY', self::getCountry());
 
-        $http->setUri('https://api.keen.io/3.0/projects/' . self::getProjectId() . '/events/' . $collectionName);
+        // Add auth
+        $auth = $xml->addChild('AUTH');
+        $auth->addChild('CLIENT', self::getClientId());
+        $auth->addChild('USER', self::getUserId());
+
+        $query = $xml->addChild('QUERY');
+        $query->addAttribute('CMD', $command);
+
+        foreach($options as $key => $val) {
+            switch ($key) {
+                case 'parameters':
+                    foreach ($val as $parameter => $value) {
+                        $param = $query->addChild('TEXT', $value);
+                        $param->addAttribute('TYPE', $parameter);
+                    }
+                    break;
+
+                case 'options':
+                    foreach ($val as $parameter => $value) {
+                        $option = $query->addChild('OPTION');
+                        $option->addChild('PARAMETER', $parameter);
+                        $option->addChild('VALUE', $value);
+                    }
+                    break;
+
+                default:
+                    $query->addAttribute($key, $val);
+                    break;
+            }
+        }
+
+        $http->setOptions(array('sslverifypeer' => false));
+        $http->setUri(self::getApiUrl());
         $http->setMethod('POST');
-        $http->getRequest()->setContent(Json::encode($parameters));
+        $http->getRequest()->setContent($xml->asXML());
 
         $response = $http->send();
-        $json = Json::decode($response->getBody());
+        $responseXml = simplexml_load_string($response->getBody());
 
-        return $json->created;
+        return $responseXml;
     }
 }
