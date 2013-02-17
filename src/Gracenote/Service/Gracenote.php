@@ -27,20 +27,9 @@ final class Gracenote {
         self::$clientId = $value;
     }
 
-    static public function getClientTag()
-    {
-        return self::$clientTag;
-    }
-
-    static public function setClientTag($value)
-    {
-        self::$clientTag = $value;
-    }
-
-    static public function configure($clientId, $clientTag)
+    static public function configure($clientId)
     {
         self::setClientId($clientId);
-        self::setClientTag($clientTag);
     }
 
     static public function getApiUrl()
@@ -52,17 +41,25 @@ final class Gracenote {
     {
         $http = new Client();
 
+        $xml = new \SimpleXmlElement('<QUERIES></QUERIES>');
+        $query = $xml->addChild('QUERY');
+        $query->addAttribute('CMD', 'REGISTER');
+        $query->addChild('CLIENT', self::getClientId());
+
         $http->setOptions(array('sslverifypeer' => false));
-#        $headers = new Headers();
-#        $headers->addHeaderLine('Authorization', self::getApiKey());
-#        $headers->addHeaderLine('Content-Type', 'application/json');
-#        $http->setHeaders($headers);
-
-        $http->setUri('https://api.keen.io/3.0/projects/' . self::getProjectId() . '/events/' . $collectionName);
+        $http->setUri(self::getApiUrl());
         $http->setMethod('POST');
-        $http->getRequest()->setContent(Json::encode($parameters));
+        $http->getRequest()->setContent($xml->asXML());
 
-        die (strtok(self::getClientId(), '-'));
+        $response = $http->send();
+        $responseXml = simplexml_load_string($response->getBody());
+
+        if ((string)$responseXml->RESPONSE['STATUS'] == 'OK') {
+            die('Your client id is ' . (string)$responseXml->RESPONSE->USER);
+        } else {
+            echo "There was an error creating your userid";
+            print_r($responseXml);
+        }
     }
 
     static public function addEvent($collectionName, $parameters)
