@@ -31,7 +31,7 @@ Gracenote::register();
 
 Run a query
 ```php
-Gracenote::query('ALBUM_SEARCH', array(
+$simpleXmlResult = Gracenote::query('ALBUM_SEARCH', array(
     'mode' => 'SINGLE_BEST_COVER',
     'parameters' => array(
         'ARTIST' => 'flying lotus',
