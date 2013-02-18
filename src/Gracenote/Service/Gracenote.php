@@ -92,7 +92,7 @@ final class Gracenote {
         $responseXml = simplexml_load_string($response->getBody());
 
         if ((string)$responseXml->RESPONSE['STATUS'] == 'OK') {
-            die('Your client id is ' . (string)$responseXml->RESPONSE->USER);
+            die('Your user id is ' . (string)$responseXml->RESPONSE->USER);
         } else {
             echo "There was an error creating your userid";
             print_r($responseXml);
