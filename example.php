@@ -35,3 +35,7 @@ var_dump($results);
 echo "\n\nFetch Album:\n";
 $results = $api->fetchAlbum("5026977-5C6DC28B1E1ADB1D028FF248DDFAEB55");
 var_dump($results);
+
+echo "\n\nAlbum Toc:\n";
+$results = $api->albumToc("150 20512 30837 50912 64107 78357 90537 110742 126817 144657 153490 160700 175270 186830 201800 218010 237282 244062 262600 272929");
+var_dump($results);

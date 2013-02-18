@@ -127,6 +127,18 @@ class GracenoteWebAPI
         return $output;
     }
 
+    // Fetches album metadata based on a table of contents.
+    public function albumToc($toc)
+    {
+        // Sanity checks
+        if ($this->_userID === null) { $this->register(); }
+
+        $body = "<TOC><OFFSETS>".$toc."</OFFSETS></TOC>";
+
+        $data = $this->_constructQueryRequest($body, "ALBUM_TOC");
+        return $this->_execute($data);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Simply executes the query to Gracenote WebAPI

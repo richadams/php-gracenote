@@ -211,3 +211,7 @@ Will return the same result array with metadata for the top album by CSS (which 
 	$results = $api->searchAlbum("Jaga Jazzist", "What We Must");
 
 Will return a array with metadata for Jaga Jazzist's "What We Must" album, and metadata for each track on the album.
+
+You can also lookup an album based upon the TOC data,
+
+    $results = $api->albumToc("150 20512 30837 50912 64107 78357 90537 110742 126817 144657 153490 160700 175270 186830 201800 218010 237282 244062 262600 272929");
