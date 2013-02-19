@@ -34,9 +34,9 @@ Run a query
 $simpleXmlResult = Gracenote::query('ALBUM_SEARCH', array(
     'mode' => 'SINGLE_BEST_COVER',
     'parameters' => array(
-        'ARTIST' => 'flying lotus',
-        'ALBUM_TITLE' => 'until the quiet comes',
-        'TRACK_TITLE' => 'all in'
+        'ARTIST' => 'the bengals',
+        'ALBUM_TITLE' => 'different light',
+        'TRACK_TITLE' => 'walk like an egyptian'
     ),
     'options' => array(
         'SELECT_EXTENDED' => 'COVER,REVIEW,ARTIST_BIOGRAPHY,ARTIST_IMAGE,ARTIST_OET,MOOD,TEMPO',
