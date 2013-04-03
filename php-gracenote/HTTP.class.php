@@ -22,6 +22,8 @@ class HTTP
     public function __construct($url, $timeout = 10000)
     {
         global $_CONFIG;
+        // if constant is missing, define it
+        if (!defined(CURLOPT_TIMEOUT_MS)) define('CURLOPT_TIMEOUT_MS', 156);
         $this->_url     = $url;
         $this->_timeout = $timeout;
 

@@ -20,6 +20,7 @@ class GracenoteWebAPI
     private $_clientID  = null;
     private $_clientTag = null;
     private $_userID    = null;
+    public  $_lastResponse = null;
     private $_apiURL    = "https://[[CLID]].web.cddbp.net/webapi/xml/1.0/";
 
     // Constructor
@@ -57,8 +58,10 @@ class GracenoteWebAPI
                     </QUERIES>";
         $http = new HTTP($this->_apiURL);
         $response = $http->post($request);
+        
         $response = $this->_checkResponse($response);
-
+        
+        
         // Cache it locally then return to user.
         $this->_userID = (string)$response->RESPONSE->USER;
         return $this->_userID;
@@ -146,6 +149,7 @@ class GracenoteWebAPI
     {
         $request = new HTTP($this->_apiURL);
         $response = $request->post($data);
+        $this->_lastResponse = $response;        
         return $this->_parseResponse($response);
     }
 
@@ -268,7 +272,7 @@ class GracenoteWebAPI
             $obj["album_title"]       = (string)($a->TITLE);
             $obj["album_year"]        = (string)($a->DATE);
             $obj["genre"]             = $this->_getOETElem($a->GENRE);
-            $obj["album_art_url"]     = (string)($this->_getAttribElem($a->URL, "TYPE", "COVERART"));
+            $obj["album_art_url"]     = (array)($this->_getAttribElem($a->URL, "TYPE", "COVERART",true));
 
             // Artist metadata
             $obj["artist_image_url"]  = (string)($this->_getAttribElem($a->URL, "TYPE", "ARTIST_IMAGE"));
@@ -319,13 +323,18 @@ class GracenoteWebAPI
     }
 
     // A helper function to return the child node which has a certain attribute value.
-    private function _getAttribElem($root, $attribute, $value)
+    private function _getAttribElem($root, $attribute, $value, $array = false)
     {
+        $finds = array();
+        
         foreach ($root as $r)
         {
             $attrib = $r->attributes();
-            if ($attrib[$attribute] == $value) { return $r; }
+            if ($attrib[$attribute] == $value) { $finds[] = (string)$r; }
         }
+        
+        if ($array == false) { return $finds[0];}
+        return $finds;
     }
 
     // A helper function to parse OET data into an array
