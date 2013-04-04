@@ -9,6 +9,7 @@ if (!defined("GN_DEBUG")) { define("GN_DEBUG", false); }
 // Dependencies
 include(dirname( __FILE__ )."/GracenoteError.class.php");
 include(dirname( __FILE__ )."/HTTP.class.php");
+include(dirname( __FILE__ )."/Search.class.php");
 
 class GracenoteWebAPI
 {
@@ -20,6 +21,7 @@ class GracenoteWebAPI
     private $_clientID  = null;
     private $_clientTag = null;
     private $_userID    = null;
+    public  $_lastResponse = null;
     private $_apiURL    = "https://[[CLID]].web.cddbp.net/webapi/xml/1.0/";
 
     // Constructor
@@ -57,46 +59,13 @@ class GracenoteWebAPI
                     </QUERIES>";
         $http = new HTTP($this->_apiURL);
         $response = $http->post($request);
+        
         $response = $this->_checkResponse($response);
-
+        
+        
         // Cache it locally then return to user.
         $this->_userID = (string)$response->RESPONSE->USER;
         return $this->_userID;
-    }
-
-    // Queries the Gracenote service for a track
-    public function searchTrack($artistName, $albumTitle, $trackTitle, $matchMode = self::ALL_RESULTS)
-    {
-        // Sanity checks
-        if ($this->_userID === null) { $this->register(); }
-
-        $body = $this->_constructQueryBody($artistName, $albumTitle, $trackTitle, "", "ALBUM_SEARCH", $matchMode);
-        $data = $this->_constructQueryRequest($body);
-        return $this->_execute($data);
-    }
-
-    // Queries the Gracenote service for an artist.
-    public function searchArtist($artistName, $matchMode = self::ALL_RESULTS)
-    {
-        return $this->searchTrack($artistName, "", "", $matchMode);
-    }
-
-    // Queries the Gracenote service for an album.
-    public function searchAlbum($artistName, $albumTitle, $matchMode = self::ALL_RESULTS)
-    {
-        return $this->searchTrack($artistName, $albumTitle, "", $matchMode);
-    }
-
-    // This looks up an album directly using it's Gracenote identifier. Will return all the
-    // additional GOET data.
-    public function fetchAlbum($gn_id)
-    {
-        // Sanity checks
-        if ($this->_userID === null) { $this->register(); }
-
-        $body = $this->_constructQueryBody("", "", "", $gn_id, "ALBUM_FETCH");
-        $data = $this->_constructQueryRequest($body, "ALBUM_FETCH");
-        return $this->_execute($data);
     }
 
     // This retrieves ONLY the OET data from a fetch, and nothing else. Will return an array of that data.
@@ -142,15 +111,16 @@ class GracenoteWebAPI
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Simply executes the query to Gracenote WebAPI
-    protected function _execute($data)
+    public function _execute($data)
     {
         $request = new HTTP($this->_apiURL);
         $response = $request->post($data);
+        $this->_lastResponse = $response;        
         return $this->_parseResponse($response);
     }
 
     // This will construct the gracenote query, adding in the authentication header, etc.
-    protected function _constructQueryRequest($body, $command = "ALBUM_SEARCH")
+    public function _constructQueryRequest($body, $command = "ALBUM_SEARCH")
     {
         return
             "<QUERIES>
@@ -165,27 +135,34 @@ class GracenoteWebAPI
     }
 
     // Constructs the main request body, including some default options for metadata, etc.
-    protected function _constructQueryBody($artist, $album = "", $track = "", $gn_id = "", $command = "ALBUM_SEARCH", $matchMode = self::ALL_RESULTS)
+    public function _constructQueryBody($options)
     {
+        if ($this->_userID === null) { $this->register(); }
         $body = "";
 
         // If a fetch scenario, user the Gracenote ID.
-        if ($command == "ALBUM_FETCH")
+        if ($options['command'] == "ALBUM_FETCH")
         {
-            $body .= "<GN_ID>".$gn_id."</GN_ID>";
+            $body .= "<GN_ID>".$options['gn_id']."</GN_ID>";
         }
         // Otherwise, just do a search.
         else
         {
             // Only get the single best match if that's what the user wants.
-            if ($matchMode == self::BEST_MATCH_ONLY) { $body .= "<MODE>SINGLE_BEST</MODE>"; }
+            if ($options['matchmode'] == self::BEST_MATCH_ONLY) { $body .= "<MODE>SINGLE_BEST</MODE>"; }
 
             // If a search scenario, then need the text input
-            if ($artist != "") { $body .= "<TEXT TYPE=\"ARTIST\">".$artist."</TEXT>"; }
-            if ($track != "")  { $body .= "<TEXT TYPE=\"TRACK_TITLE\">".$track."</TEXT>"; }
-            if ($album != "")  { $body .= "<TEXT TYPE=\"ALBUM_TITLE\">".$album."</TEXT>"; }
+            if ($options['artist_name'] != "") { $body .= "<TEXT TYPE=\"ARTIST\">".$options['artist_name']."</TEXT>"; }
+            if ($options['album_title'] != "")  { $body .= "<TEXT TYPE=\"ALBUM_TITLE\">".$options['album_title']."</TEXT>"; }
+            if ($options['track_title'] != "")  { $body .= "<TEXT TYPE=\"TRACK_TITLE\">".$options['track_title']."</TEXT>"; }
+            // add paging
+            $body .= '<RANGE>
+                        <START>'.$options['paging_start'].'</START>
+                        <END>'.$options['paging_end'].'</END>
+                      </RANGE>';
+    
         }
-
+        
         // Include extended data.
         $body .= "<OPTION>
                       <PARAMETER>SELECT_EXTENDED</PARAMETER>
@@ -198,10 +175,10 @@ class GracenoteWebAPI
                       <VALUE>GENRE:3LEVEL,MOOD:2LEVEL,TEMPO:3LEVEL,ARTIST_ORIGIN:4LEVEL,ARTIST_ERA:2LEVEL,ARTIST_TYPE:2LEVEL</VALUE>
                   </OPTION>";
 
-        // Only want the thumbnail cover art for now (LARGE,XLARGE,SMALL,MEDIUM,THUMBNAIL)
+        // Return all sizes, parser will handle it 
         $body .= "<OPTION>
                       <PARAMETER>COVER_SIZE</PARAMETER>
-                      <VALUE>MEDIUM</VALUE>
+                      <VALUE>LARGE,XLARGE,SMALL,MEDIUM,THUMBNAIL</VALUE>
                   </OPTION>";
 
         return $body;
@@ -268,7 +245,7 @@ class GracenoteWebAPI
             $obj["album_title"]       = (string)($a->TITLE);
             $obj["album_year"]        = (string)($a->DATE);
             $obj["genre"]             = $this->_getOETElem($a->GENRE);
-            $obj["album_art_url"]     = (string)($this->_getAttribElem($a->URL, "TYPE", "COVERART"));
+            $obj["album_art_url"]     = (array)($this->_getAttribElem($a->URL, "TYPE", "COVERART",true));
 
             // Artist metadata
             $obj["artist_image_url"]  = (string)($this->_getAttribElem($a->URL, "TYPE", "ARTIST_IMAGE"));
@@ -319,13 +296,18 @@ class GracenoteWebAPI
     }
 
     // A helper function to return the child node which has a certain attribute value.
-    private function _getAttribElem($root, $attribute, $value)
+    private function _getAttribElem($root, $attribute, $value, $array = false)
     {
+        $finds = array();
+        
         foreach ($root as $r)
         {
             $attrib = $r->attributes();
-            if ($attrib[$attribute] == $value) { return $r; }
+            if ($attrib[$attribute] == $value) { $finds[] = (string)$r; }
         }
+        
+        if ($array == false) { return $finds[0];}
+        return $finds;
     }
 
     // A helper function to parse OET data into an array

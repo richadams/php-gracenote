@@ -32,7 +32,8 @@ Once you have your Client ID and User ID, you can start making queries.
 
 To search for the Moby track "Porcelin" from his album "Play",
 
-    $results = $api->searchTrack("Moby", "Play", "Porcelin");
+    $search = new Gracenote\WebAPI\Search($api);
+    $response = $search->search('Moby','Play', 'Porcelin');
 
 The results are a PHP array containing the metadata information,
 
@@ -200,15 +201,18 @@ Note that URLs to related content (e.g. Album Art, Artist Image, etc) are not va
 
 If you don't know which album a track is on (or don't care which album version you get), you can simply leave that parameter blank:
 
-	$results = $api->searchTrack("Moby", "", "Porcelin");
+    $search = new Gracenote\WebAPI\Search($api);
+    $response = $search->search('Moby',null, 'Porcelin');
 
 There are also convenience functions to look up just an Artist or just an Album.
 
-	$results = $api->searchArtist("CSS");
+    $search = new Gracenote\WebAPI\Search($api);
+    $response = $search->search('CSS');
 
 Will return the same result array with metadata for the top album by CSS (which happens to be "Cansei De Ser Sexy" at time of writing), and the track info for each album.
 
-	$results = $api->searchAlbum("Jaga Jazzist", "What We Must");
+    $search = new Gracenote\WebAPI\Search($api);
+    $response = $search->search('Jaga Jazzist', 'What We Must');
 
 Will return a array with metadata for Jaga Jazzist's "What We Must" album, and metadata for each track on the album.
 
