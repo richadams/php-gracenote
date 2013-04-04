@@ -155,14 +155,14 @@ class GracenoteWebAPI
             if ($options['artist_name'] != "") { $body .= "<TEXT TYPE=\"ARTIST\">".$options['artist_name']."</TEXT>"; }
             if ($options['album_title'] != "")  { $body .= "<TEXT TYPE=\"ALBUM_TITLE\">".$options['album_title']."</TEXT>"; }
             if ($options['track_title'] != "")  { $body .= "<TEXT TYPE=\"TRACK_TITLE\">".$options['track_title']."</TEXT>"; }
+            // add paging
+            $body .= '<RANGE>
+                        <START>'.$options['paging_start'].'</START>
+                        <END>'.$options['paging_end'].'</END>
+                      </RANGE>';
+    
         }
         
-        // add paging
-        $body .= '<RANGE>
-                    <START>'.$options['paging_start'].'</START>
-                    <END>'.$options['paging_end'].'</END>
-                  </RANGE>';
-
         // Include extended data.
         $body .= "<OPTION>
                       <PARAMETER>SELECT_EXTENDED</PARAMETER>

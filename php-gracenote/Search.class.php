@@ -44,7 +44,7 @@ class Search
     public function getAlbum($gn_id){
         $this->gn_id = $gn_id;
         $this->command = 'ALBUM_FETCH';
-        $this->exec();
+        return $this->exec();
     }
     
     // show only the best result. Provide `false` if you want to see all
@@ -54,7 +54,7 @@ class Search
     
     private function exec(){
         $body = $this->api->_constructQueryBody($this->getOptions());
-        $data = $this->api->_constructQueryRequest($body);
+        $data = $this->api->_constructQueryRequest($body, $this->command);
         return $this->api->_execute($data);
     }
     
