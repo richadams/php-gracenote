@@ -17,19 +17,19 @@ echo "UserID = ".$userID."\n";
 
 // Once you have the userID, you can search for tracks, artists or albums easily.
 echo "\n\nSearch Tracks:\n";
-$results = $api->searchTrack("Moby", "Play", "Porcelin");
+$results = $api->searchTrack("Kings Of Convenience", "Riot On An Empty Street", "Homesick");
 var_dump($results);
 
 echo "\n\nSearch Best Track:\n";
-$results = $api->searchTrack("Moby", "Play", "Porcelin", Gracenote\WebAPI\GracenoteWebAPI::BEST_MATCH_ONLY);
+$results = $api->searchTrack("Kings Of Convenience", "Riot On An Empty Street", "Homesick", Gracenote\WebAPI\GracenoteWebAPI::BEST_MATCH_ONLY);
 var_dump($results);
 
 echo "\n\nSearch Artist:\n";
-$results = $api->searchArtist("Moby");
+$results = $api->searchArtist("Kings Of Convenience");
 var_dump($results);
 
 echo "\n\nSearch Album:\n";
-$results = $api->searchAlbum("Moby", "Play");
+$results = $api->searchAlbum("Kings Of Convenience", "Riot On An Empty Street");
 var_dump($results);
 
 echo "\n\nFetch Album:\n";

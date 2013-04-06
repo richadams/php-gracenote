@@ -178,7 +178,7 @@ class GracenoteWebAPI
         else
         {
             // Only get the single best match if that's what the user wants.
-            if ($matchMode == self::BEST_MATCH_ONLY) { $body .= "<MODE>SINGLE_BEST</MODE>"; }
+            if ($matchMode == self::BEST_MATCH_ONLY) { $body .= "<MODE>SINGLE_BEST_COVER</MODE>"; }
 
             // If a search scenario, then need the text input
             if ($artist != "") { $body .= "<TEXT TYPE=\"ARTIST\">".$artist."</TEXT>"; }

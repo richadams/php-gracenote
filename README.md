@@ -30,9 +30,9 @@ This registration should be done only once per application to avoid hitting your
 
 Once you have your Client ID and User ID, you can start making queries.
 
-To search for the Moby track "Porcelin" from his album "Play",
+To search for the Kings of Convenience track "Homesick" from the album "Riot On An Empty Street",
 
-    $results = $api->searchTrack("Moby", "Play", "Porcelin");
+    $results = $api->searchTrack("Kings Of Convenience", "Riot On An Empty Street", "Homesick", Gracenote\WebAPI\GracenoteWebAPI::BEST_MATCH_ONLY);
 
 The results are a PHP array containing the metadata information,
 
@@ -40,53 +40,53 @@ The results are a PHP array containing the metadata information,
       [0]=>
       array(13) {
         ["album_gnid"]=>
-        string(40) "5026977-5C6DC28B1E1ADB1D028FF248DDFAEB55"
+        string(41) "59247312-2ED193587EF0504C7A0C416ED66DA962"
         ["album_artist_name"]=>
-        string(4) "Moby"
+        string(20) "Kings Of Convenience"
         ["album_title"]=>
-        string(4) "Play"
+        string(23) "Riot On An Empty Street"
         ["album_year"]=>
-        string(4) "1999"
+        string(4) "2004"
         ["genre"]=>
         array(3) {
           [0]=>
           array(2) {
             ["id"]=>
-            int(35470)
+            int(25312)
             ["text"]=>
-            string(11) "Electronica"
+            string(18) "Alternative & Punk"
           }
           [1]=>
           array(2) {
             ["id"]=>
-            int(25364)
+            int(35477)
             ["text"]=>
-            string(22) "Electronica Mainstream"
+            string(10) "Indie Rock"
           }
           [2]=>
           array(2) {
             ["id"]=>
-            int(25665)
+            int(25460)
             ["text"]=>
-            string(15) "Pop Electronica"
+            string(9) "Indie Pop"
           }
         }
         ["album_art_url"]=>
-        string(199) "https://web.content.cddbp.net/cgi-bin/content-thin?id=09A52178DC85EC3C&client=8311808&class=cover&origin=front&size=medium&type=image/jpeg&tag=02ZN.Tw8wfNAUu6it6mLiLDSViRnlvaEFZWbjCuOwENtGktsnA1oauYQ"
+        string(199) "https://web.content.cddbp.net/cgi-bin/content-thin?id=8D43DA988315CC43&client=2918400&class=cover&origin=front&size=medium&type=image/jpeg&tag=02JTBEWOCB2v-BpuCUwFcZ1gUckuGcwyqVqWFL2rLZjA.5FpKTJGAF5Q"
         ["artist_image_url"]=>
-        string(186) "https://web.content.cddbp.net/cgi-bin/content-thin?id=C018FAD072939E99&client=8311808&class=image&size=medium&type=image/jpeg&tag=02Zid-KwnjTQF5IcTTtEz0ffcaiw59OA7fr-HEt4u3gyKwVx7s5HvPBg"
+        string(186) "https://web.content.cddbp.net/cgi-bin/content-thin?id=797304D567E8970F&client=2918400&class=image&size=medium&type=image/jpeg&tag=02LSJZOY.aEoqkYZ4BK4Y0XdvB85jGGk1FbUGf2QY4BfDk7HgLFd.a0w"
         ["artist_bio_url"]=>
-        string(178) "https://web.content.cddbp.net/cgi-bin/content-thin?id=1274BA55D9C33B8E&client=8311808&class=biography&type=text/plain&tag=02S7b-pi.H9yei-m1W6UQAoL--ObBoOOB-nNa4Pa6MpXLniCk9JnB18A"
+        string(178) "https://web.content.cddbp.net/cgi-bin/content-thin?id=22DA84B96832BF4F&client=2918400&class=biography&type=text/plain&tag=02WlrWiKA7BKEwFcnYa8O.qAy2LEwC8TTGfF2lKUFQuPxF0Zw7hTUO1Q"
         ["review_url"]=>
-        string(175) "https://web.content.cddbp.net/cgi-bin/content-thin?id=2BE8903E6FDA54AF&client=8311808&class=review&type=text/plain&tag=02FHvc-3RfDd7rxAHCydaUeuXTdOi64CvYbET4RChNV4XMFLWfLt4t0A"
+        string(175) "https://web.content.cddbp.net/cgi-bin/content-thin?id=4045DA976DB1DEFA&client=2918400&class=review&type=text/plain&tag=02ReD1hup0RUvCA7zQ1pfZebg17zj5X9fJQYgp71ntyQTR5IKfOCh81A"
         ["artist_era"]=>
         array(1) {
           [0]=>
           array(2) {
             ["id"]=>
-            int(29484)
+            int(29483)
             ["text"]=>
-            string(6) "1990's"
+            string(6) "2000's"
           }
         }
         ["artist_type"]=>
@@ -101,40 +101,26 @@ The results are a PHP array containing the metadata information,
           [1]=>
           array(2) {
             ["id"]=>
-            int(29426)
+            int(29432)
             ["text"]=>
-            string(4) "Male"
+            string(8) "Male Duo"
           }
         }
         ["artist_origin"]=>
-        array(4) {
+        array(2) {
           [0]=>
           array(2) {
             ["id"]=>
-            int(29889)
+            int(29896)
             ["text"]=>
-            string(13) "North America"
+            string(11) "Scandinavia"
           }
           [1]=>
           array(2) {
             ["id"]=>
-            int(29908)
+            int(29990)
             ["text"]=>
-            string(13) "United States"
-          }
-          [2]=>
-          array(2) {
-            ["id"]=>
-            int(30199)
-            ["text"]=>
-            string(8) "New York"
-          }
-          [3]=>
-          array(2) {
-            ["id"]=>
-            int(30634)
-            ["text"]=>
-            string(13) "New York City"
+            string(6) "Norway"
           }
         }
         ["tracks"]=>
@@ -144,26 +130,26 @@ The results are a PHP array containing the metadata information,
             ["track_number"]=>
             int(1)
             ["track_gnid"]=>
-            string(40) "5026978-59020A61693879EB2A8BBD376B836091"
+            string(41) "59247313-E198021B46C38679362C35619E93396B"
             ["track_title"]=>
-            string(5) "Honey"
+            string(8) "Homesick"
             ["track_artist_name"]=>
-            string(0) ""
+            string(20) "Kings Of Convenience"
             ["mood"]=>
             array(2) {
               [0]=>
               array(2) {
                 ["id"]=>
-                int(42961)
+                int(42949)
                 ["text"]=>
-                string(10) "Energizing"
+                string(10) "Melancholy"
               }
               [1]=>
               array(2) {
                 ["id"]=>
-                int(43050)
+                int(65343)
                 ["text"]=>
-                string(15) "Arousing Groove"
+                string(16) "Light Melancholy"
               }
             }
             ["tempo"]=>
@@ -178,16 +164,16 @@ The results are a PHP array containing the metadata information,
               [1]=>
               array(2) {
                 ["id"]=>
-                int(34291)
+                int(34289)
                 ["text"]=>
-                string(11) "Medium Fast"
+                string(11) "Medium Slow"
               }
               [2]=>
               array(2) {
                 ["id"]=>
-                int(34320)
+                int(34311)
                 ["text"]=>
-                string(4) "100s"
+                string(3) "60s"
               }
             }
           }
@@ -195,8 +181,7 @@ The results are a PHP array containing the metadata information,
       }
     }
 
-
-Note that URLs to related content (e.g. Album Art, Artist Image, etc) are not valid forever, so your application should download the content you want relatively soon after the lookup and cache it locally.
+Note that URLs to related content (e.g. Album Art, Artist Image, etc) are not valid forever, so your application should download the content you want relatively soon after the lookup and cache it locally. If you don't do a BEST_MATCH_ONLY search, then the results may not contain the full collection of metadata (specifically it appears as though mood and tempo are missing).
 
 If you don't know which album a track is on (or don't care which album version you get), you can simply leave that parameter blank:
 
