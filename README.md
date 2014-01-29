@@ -1,36 +1,38 @@
-#php-gracenote
+A simple PHP client for the [Gracenote Web API](https://developer.gracenote.com/web-api), which allows you to look up artists, albums, and tracks in the Gracenote database, and returns a number of metadata fields, including:
 
-A simple PHP client for the <a href="http://www.gracenote.com">Gracenote</a> Music API, which can retrieve Artist, Album and Track metadata with the most common options.
+* Basic metadata; e.g. Artist Name, Album Title, Track Title.
+* Descriptors; e.g. Genre, Origin, Mood, Tempo.
+* Related content; e.g. Album Art, Artist Image, Biographies.
 
-This is basically the PHP equivilent to the <a href="https://github.com/cweichen/pygn">pygn project</a>.
+:exclamation: **_This is just example code to get you started on your own projects using Gracenote's API, and is not meant as an exhaustive wrapper of the full API._**
 
-php-gracenote allows you to look up artists, albums, and tracks in the Gracenote database, and returns a number of metadata fields, including:
-
-* Basic metadata like Artist Name, Album Title, Track Title.
-* Descriptors like Genre, Origin, Mood, Tempo.
-* Related content like Album Art, Artist Image, Biographies.
-
-##Installation
+### Installation
 
 Just copy the `php-gracenote` directory into your project, then include the `Gracenote.class.php` file.
 
     <?php
     include("./php-gracenote/Gracenote.class.php");
 
-##Getting Started
+### Prerequisites
 
-You will need a Gracenote Client ID to use this module. Please visit https://developer.gracenote.com to get yours.
+You will need a Gracenote Client ID from the [Gracenote Developer Portal](https://developer.gracenote.com/) to use the API.
 
 Each installed application also needs to have a User ID, which may be obtained by registering your Client ID with the Gracenote API. To do this, do:
 
-    $api = new Gracenote\WebAPI\GracenoteWebAPI($clientID, $clientTag); // If you already have a userID, you can specify as third parameter to constructor and skip this step.
+    $api = new Gracenote\WebAPI\GracenoteWebAPI($clientID, $clientTag);
     $userID = $api->register();
 
-This registration should be done only once per application to avoid hitting your API quota (i.e. definitely do NOT do this before every query). The userID can be stored in persistent storage (e.g. on the filesystem) and used for all subsequent pygn function calls.
+**This registration should be done only once per application to avoid hitting your API quota** (i.e. definitely do NOT do this before every query). The userID can be stored in persistent storage (e.g. on the filesystem) and used for all subsequent pygn function calls.
 
 Once you have your Client ID and User ID, you can start making queries.
 
-To search for the Kings of Convenience track "Homesick" from the album "Riot On An Empty Street",
+### Usage
+
+First, initialize the object using your credentials and UserID.
+
+    $api = new Gracenote\WebAPI\GracenoteWebAPI($clientID, $clientTag, $userID);
+
+Then, to search for the Kings of Convenience track "Homesick" from the album "Riot On An Empty Street",
 
     $results = $api->searchTrack("Kings Of Convenience", "Riot On An Empty Street", "Homesick", Gracenote\WebAPI\GracenoteWebAPI::BEST_MATCH_ONLY);
 
@@ -181,21 +183,23 @@ The results are a PHP array containing the metadata information,
       }
     }
 
-Note that URLs to related content (e.g. Album Art, Artist Image, etc) are not valid forever, so your application should download the content you want relatively soon after the lookup and cache it locally. If you don't do a BEST_MATCH_ONLY search, then the results may not contain the full collection of metadata (specifically it appears as though mood and tempo are missing).
+_Note that URLs to related content (e.g. Album Art, Artist Image, etc) are not valid forever, so your application should download the content you want relatively soon after the lookup and cache it locally._ Additionally, if you don't do a BEST_MATCH_ONLY search, then the results may not contain the full collection of metadata (specifically it appears as though mood and tempo are missing).
 
-If you don't know which album a track is on (or don't care which album version you get), you can simply leave that parameter blank:
+If you don't know which album a track is on (or don't care which album version you get), you can simply leave that parameter blank,
 
-	$results = $api->searchTrack("Moby", "", "Porcelin");
+    $results = $api->searchTrack("Moby", "", "Porcelin");
 
-There are also convenience functions to look up just an Artist or just an Album.
+There are also convenience functions to look up just an Artist...,
 
-	$results = $api->searchArtist("CSS");
+    $results = $api->searchArtist("CSS");
 
-Will return the same result array with metadata for the top album by CSS (which happens to be "Cansei De Ser Sexy" at time of writing), and the track info for each album.
+(_This will return the same result array with metadata for the top album by CSS (which happens to be "Cansei De Ser Sexy" at time of writing), and the track info for each album._)
 
-	$results = $api->searchAlbum("Jaga Jazzist", "What We Must");
+...or to look up just an Album,
 
-Will return a array with metadata for Jaga Jazzist's "What We Must" album, and metadata for each track on the album.
+    $results = $api->searchAlbum("Jaga Jazzist", "What We Must");
+
+(_This will return an array with metadata for Jaga Jazzist's "What We Must" album, and metadata for each track on the album._)
 
 You can also lookup an album based upon the TOC data,
 
