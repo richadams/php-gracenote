@@ -244,10 +244,10 @@ class GracenoteWebAPI
         {
             $xml = $this->_checkResponse($response);
         }
-        catch (SAPIException $e)
+        catch (GNException $e)
         {
             // If it was a no match, just give empty array back
-            if ($e->getCode() == SAPIError::GRACENOTE_NO_MATCH)
+            if ($e->getCode() == GNError::API_NO_MATCH)
             {
                 return array();
             }
