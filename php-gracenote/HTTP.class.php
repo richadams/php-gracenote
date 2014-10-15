@@ -35,7 +35,6 @@ class HTTP
         curl_setopt($this->_ch, CURLOPT_FOLLOWLOCATION, true);            // Follow any redirects
         curl_setopt($this->_ch, CURLOPT_RETURNTRANSFER, true);            // Put the response into a variable instead of printing.
         curl_setopt($this->_ch, CURLOPT_TIMEOUT_MS,     $this->_timeout); // Don't want to hang around forever.
-        curl_setopt($this->_ch, CURLOPT_SSLVERSION,     3);               // Force to SSL v3
     }
 
     // Dtor
